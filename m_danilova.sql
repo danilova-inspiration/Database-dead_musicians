@@ -5,7 +5,7 @@
 -- Dumped from database version 9.6.5
 -- Dumped by pg_dump version 9.6.5
 
--- Started on 2017-11-01 22:14:30
+-- Started on 2017-11-15 21:09:14
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -25,7 +25,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 2236 (class 0 OID 0)
+-- TOC entry 2235 (class 0 OID 0)
 -- Dependencies: 1
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
@@ -40,7 +40,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- TOC entry 192 (class 1259 OID 16433)
+-- TOC entry 192 (class 1259 OID 17680)
 -- Name: countries; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -53,7 +53,7 @@ CREATE TABLE countries (
 ALTER TABLE countries OWNER TO postgres;
 
 --
--- TOC entry 191 (class 1259 OID 16431)
+-- TOC entry 191 (class 1259 OID 17678)
 -- Name: countries_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -68,7 +68,7 @@ CREATE SEQUENCE countries_id_seq
 ALTER TABLE countries_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2237 (class 0 OID 0)
+-- TOC entry 2236 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: countries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -77,7 +77,7 @@ ALTER SEQUENCE countries_id_seq OWNED BY countries.id;
 
 
 --
--- TOC entry 196 (class 1259 OID 16451)
+-- TOC entry 196 (class 1259 OID 17698)
 -- Name: genres; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -90,7 +90,7 @@ CREATE TABLE genres (
 ALTER TABLE genres OWNER TO postgres;
 
 --
--- TOC entry 195 (class 1259 OID 16449)
+-- TOC entry 195 (class 1259 OID 17696)
 -- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -105,7 +105,7 @@ CREATE SEQUENCE genres_id_seq
 ALTER TABLE genres_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2238 (class 0 OID 0)
+-- TOC entry 2237 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -114,7 +114,7 @@ ALTER SEQUENCE genres_id_seq OWNED BY genres.id;
 
 
 --
--- TOC entry 190 (class 1259 OID 16425)
+-- TOC entry 190 (class 1259 OID 17671)
 -- Name: music_groups; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -124,14 +124,15 @@ CREATE TABLE music_groups (
     name_group character varying(69) NOT NULL,
     data_begin integer NOT NULL,
     data_end integer,
-    country integer NOT NULL
+    country_id integer NOT NULL,
+    CONSTRAINT music_groups_data_begin_check CHECK (((data_begin <= data_end) AND (data_begin >= 1400)))
 );
 
 
 ALTER TABLE music_groups OWNER TO postgres;
 
 --
--- TOC entry 189 (class 1259 OID 16423)
+-- TOC entry 189 (class 1259 OID 17669)
 -- Name: music_groups_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -146,7 +147,7 @@ CREATE SEQUENCE music_groups_id_seq
 ALTER TABLE music_groups_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2239 (class 0 OID 0)
+-- TOC entry 2238 (class 0 OID 0)
 -- Dependencies: 189
 -- Name: music_groups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -155,7 +156,7 @@ ALTER SEQUENCE music_groups_id_seq OWNED BY music_groups.id;
 
 
 --
--- TOC entry 198 (class 1259 OID 16461)
+-- TOC entry 198 (class 1259 OID 17708)
 -- Name: music_rewards; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -163,15 +164,15 @@ CREATE TABLE music_rewards (
     id integer NOT NULL,
     name character varying(69) NOT NULL,
     begin integer NOT NULL,
-    country integer NOT NULL,
-    CONSTRAINT catalogues_begin_check CHECK ((begin >= 1000))
+    country_m integer NOT NULL,
+    CONSTRAINT music_rewards_begin_check CHECK ((begin >= 1000))
 );
 
 
 ALTER TABLE music_rewards OWNER TO postgres;
 
 --
--- TOC entry 197 (class 1259 OID 16459)
+-- TOC entry 197 (class 1259 OID 17706)
 -- Name: music_rewards_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -186,7 +187,7 @@ CREATE SEQUENCE music_rewards_id_seq
 ALTER TABLE music_rewards_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2240 (class 0 OID 0)
+-- TOC entry 2239 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: music_rewards_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -195,7 +196,7 @@ ALTER SEQUENCE music_rewards_id_seq OWNED BY music_rewards.id;
 
 
 --
--- TOC entry 188 (class 1259 OID 16417)
+-- TOC entry 188 (class 1259 OID 17663)
 -- Name: musical_instruments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -208,7 +209,7 @@ CREATE TABLE musical_instruments (
 ALTER TABLE musical_instruments OWNER TO postgres;
 
 --
--- TOC entry 187 (class 1259 OID 16415)
+-- TOC entry 187 (class 1259 OID 17661)
 -- Name: musical_instruments_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -223,7 +224,7 @@ CREATE SEQUENCE musical_instruments_id_seq
 ALTER TABLE musical_instruments_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2241 (class 0 OID 0)
+-- TOC entry 2240 (class 0 OID 0)
 -- Dependencies: 187
 -- Name: musical_instruments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -232,7 +233,7 @@ ALTER SEQUENCE musical_instruments_id_seq OWNED BY musical_instruments.id;
 
 
 --
--- TOC entry 186 (class 1259 OID 16407)
+-- TOC entry 186 (class 1259 OID 17654)
 -- Name: musicians; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -241,18 +242,17 @@ CREATE TABLE musicians (
     name_surname character varying(69) NOT NULL,
     birthday date NOT NULL,
     music_education boolean NOT NULL,
-    country integer NOT NULL,
+    id_country integer NOT NULL,
     data_death date NOT NULL,
     cause_death character varying(169) NOT NULL,
-    CONSTRAINT catalogues_birthday_check CHECK (((birthday <= data_death) AND (birthday >= '1400-01-01'::date))),
-    CONSTRAINT catalogues_music_education_check CHECK ((music_education = ANY (ARRAY[true, false])))
+    CONSTRAINT musician_birthday_check CHECK (((birthday <= data_death) AND (birthday >= '1400-01-01'::date)))
 );
 
 
 ALTER TABLE musicians OWNER TO postgres;
 
 --
--- TOC entry 185 (class 1259 OID 16405)
+-- TOC entry 185 (class 1259 OID 17652)
 -- Name: musicians_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -267,7 +267,7 @@ CREATE SEQUENCE musicians_id_seq
 ALTER TABLE musicians_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2242 (class 0 OID 0)
+-- TOC entry 2241 (class 0 OID 0)
 -- Dependencies: 185
 -- Name: musicians_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -276,7 +276,7 @@ ALTER SEQUENCE musicians_id_seq OWNED BY musicians.id;
 
 
 --
--- TOC entry 200 (class 1259 OID 16472)
+-- TOC entry 200 (class 1259 OID 17719)
 -- Name: musicians_music_groups_relation; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -290,7 +290,7 @@ CREATE TABLE musicians_music_groups_relation (
 ALTER TABLE musicians_music_groups_relation OWNER TO postgres;
 
 --
--- TOC entry 199 (class 1259 OID 16470)
+-- TOC entry 199 (class 1259 OID 17717)
 -- Name: musicians_music_groups_relation_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -305,7 +305,7 @@ CREATE SEQUENCE musicians_music_groups_relation_id_seq
 ALTER TABLE musicians_music_groups_relation_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2243 (class 0 OID 0)
+-- TOC entry 2242 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: musicians_music_groups_relation_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -314,7 +314,7 @@ ALTER SEQUENCE musicians_music_groups_relation_id_seq OWNED BY musicians_music_g
 
 
 --
--- TOC entry 202 (class 1259 OID 16480)
+-- TOC entry 202 (class 1259 OID 17727)
 -- Name: musicians_music_rewards_relation; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -328,7 +328,7 @@ CREATE TABLE musicians_music_rewards_relation (
 ALTER TABLE musicians_music_rewards_relation OWNER TO postgres;
 
 --
--- TOC entry 201 (class 1259 OID 16478)
+-- TOC entry 201 (class 1259 OID 17725)
 -- Name: musicians_music_rewards_relation_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -343,7 +343,7 @@ CREATE SEQUENCE musicians_music_rewards_relation_id_seq
 ALTER TABLE musicians_music_rewards_relation_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2244 (class 0 OID 0)
+-- TOC entry 2243 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: musicians_music_rewards_relation_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -352,7 +352,7 @@ ALTER SEQUENCE musicians_music_rewards_relation_id_seq OWNED BY musicians_music_
 
 
 --
--- TOC entry 194 (class 1259 OID 16443)
+-- TOC entry 194 (class 1259 OID 17690)
 -- Name: musicians_musical_instruments_relation; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -366,7 +366,7 @@ CREATE TABLE musicians_musical_instruments_relation (
 ALTER TABLE musicians_musical_instruments_relation OWNER TO postgres;
 
 --
--- TOC entry 193 (class 1259 OID 16441)
+-- TOC entry 193 (class 1259 OID 17688)
 -- Name: musicians_musical_instruments_relation_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -381,7 +381,7 @@ CREATE SEQUENCE musicians_musical_instruments_relation_id_seq
 ALTER TABLE musicians_musical_instruments_relation_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2245 (class 0 OID 0)
+-- TOC entry 2244 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: musicians_musical_instruments_relation_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -390,7 +390,7 @@ ALTER SEQUENCE musicians_musical_instruments_relation_id_seq OWNED BY musicians_
 
 
 --
--- TOC entry 2054 (class 2604 OID 16436)
+-- TOC entry 2054 (class 2604 OID 17683)
 -- Name: countries id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -398,7 +398,7 @@ ALTER TABLE ONLY countries ALTER COLUMN id SET DEFAULT nextval('countries_id_seq
 
 
 --
--- TOC entry 2056 (class 2604 OID 16454)
+-- TOC entry 2056 (class 2604 OID 17701)
 -- Name: genres id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -406,7 +406,7 @@ ALTER TABLE ONLY genres ALTER COLUMN id SET DEFAULT nextval('genres_id_seq'::reg
 
 
 --
--- TOC entry 2053 (class 2604 OID 16428)
+-- TOC entry 2052 (class 2604 OID 17674)
 -- Name: music_groups id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -414,7 +414,7 @@ ALTER TABLE ONLY music_groups ALTER COLUMN id SET DEFAULT nextval('music_groups_
 
 
 --
--- TOC entry 2057 (class 2604 OID 16464)
+-- TOC entry 2057 (class 2604 OID 17711)
 -- Name: music_rewards id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -422,7 +422,7 @@ ALTER TABLE ONLY music_rewards ALTER COLUMN id SET DEFAULT nextval('music_reward
 
 
 --
--- TOC entry 2052 (class 2604 OID 16420)
+-- TOC entry 2051 (class 2604 OID 17666)
 -- Name: musical_instruments id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -430,7 +430,7 @@ ALTER TABLE ONLY musical_instruments ALTER COLUMN id SET DEFAULT nextval('musica
 
 
 --
--- TOC entry 2049 (class 2604 OID 16410)
+-- TOC entry 2049 (class 2604 OID 17657)
 -- Name: musicians id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -438,7 +438,7 @@ ALTER TABLE ONLY musicians ALTER COLUMN id SET DEFAULT nextval('musicians_id_seq
 
 
 --
--- TOC entry 2059 (class 2604 OID 16475)
+-- TOC entry 2059 (class 2604 OID 17722)
 -- Name: musicians_music_groups_relation id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -446,7 +446,7 @@ ALTER TABLE ONLY musicians_music_groups_relation ALTER COLUMN id SET DEFAULT nex
 
 
 --
--- TOC entry 2060 (class 2604 OID 16483)
+-- TOC entry 2060 (class 2604 OID 17730)
 -- Name: musicians_music_rewards_relation id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -454,7 +454,7 @@ ALTER TABLE ONLY musicians_music_rewards_relation ALTER COLUMN id SET DEFAULT ne
 
 
 --
--- TOC entry 2055 (class 2604 OID 16446)
+-- TOC entry 2055 (class 2604 OID 17693)
 -- Name: musicians_musical_instruments_relation id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -462,7 +462,7 @@ ALTER TABLE ONLY musicians_musical_instruments_relation ALTER COLUMN id SET DEFA
 
 
 --
--- TOC entry 2219 (class 0 OID 16433)
+-- TOC entry 2218 (class 0 OID 17680)
 -- Dependencies: 192
 -- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -480,7 +480,7 @@ INSERT INTO countries VALUES (10, 'Sweden');
 
 
 --
--- TOC entry 2246 (class 0 OID 0)
+-- TOC entry 2245 (class 0 OID 0)
 -- Dependencies: 191
 -- Name: countries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -489,7 +489,7 @@ SELECT pg_catalog.setval('countries_id_seq', 10, true);
 
 
 --
--- TOC entry 2223 (class 0 OID 16451)
+-- TOC entry 2222 (class 0 OID 17698)
 -- Dependencies: 196
 -- Data for Name: genres; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -510,7 +510,7 @@ INSERT INTO genres VALUES (13, 'Folk-Rock');
 
 
 --
--- TOC entry 2247 (class 0 OID 0)
+-- TOC entry 2246 (class 0 OID 0)
 -- Dependencies: 195
 -- Name: genres_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -519,7 +519,7 @@ SELECT pg_catalog.setval('genres_id_seq', 13, true);
 
 
 --
--- TOC entry 2217 (class 0 OID 16425)
+-- TOC entry 2216 (class 0 OID 17671)
 -- Dependencies: 190
 -- Data for Name: music_groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -530,7 +530,6 @@ INSERT INTO music_groups VALUES (3, 3, 'King Olivers Creole Jazz Band', 1922, 19
 INSERT INTO music_groups VALUES (4, 3, 'Hot Five', 1925, 1928, 2);
 INSERT INTO music_groups VALUES (5, 4, 'The Wailers', 1963, 1974, 1);
 INSERT INTO music_groups VALUES (6, 4, 'Bob Marley and The Wailers', 1974, 1986, 1);
-INSERT INTO music_groups VALUES (7, 5, 'The Who', 1964, 0, 4);
 INSERT INTO music_groups VALUES (8, 6, 'Thin Machine', 1988, 1992, 4);
 INSERT INTO music_groups VALUES (9, 7, 'The Spiders from Mars', 1970, 1973, 4);
 INSERT INTO music_groups VALUES (10, 8, 'Grazhdanskaya oborona', 1984, 2008, 3);
@@ -542,12 +541,11 @@ INSERT INTO music_groups VALUES (15, 3, 'The Dave Brubeck Quartet', 1958, 1967, 
 INSERT INTO music_groups VALUES (16, 2, 'Rock-gruppa', 2003, 2003, 7);
 INSERT INTO music_groups VALUES (17, 2, 'Korol I shut', 1988, 2014, 7);
 INSERT INTO music_groups VALUES (18, 12, 'The Jackson 5', 1962, 1989, 2);
-INSERT INTO music_groups VALUES (19, 11, 'Queen', 1970, 0, 4);
 INSERT INTO music_groups VALUES (20, 13, 'The Traveling Wilburys', 1988, 1990, 4);
 
 
 --
--- TOC entry 2248 (class 0 OID 0)
+-- TOC entry 2247 (class 0 OID 0)
 -- Dependencies: 189
 -- Name: music_groups_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -556,7 +554,7 @@ SELECT pg_catalog.setval('music_groups_id_seq', 20, true);
 
 
 --
--- TOC entry 2225 (class 0 OID 16461)
+-- TOC entry 2224 (class 0 OID 17708)
 -- Dependencies: 198
 -- Data for Name: music_rewards; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -579,7 +577,7 @@ INSERT INTO music_rewards VALUES (15, 'MTV Russia Music Awards', 2004, 7);
 
 
 --
--- TOC entry 2249 (class 0 OID 0)
+-- TOC entry 2248 (class 0 OID 0)
 -- Dependencies: 197
 -- Name: music_rewards_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -588,7 +586,7 @@ SELECT pg_catalog.setval('music_rewards_id_seq', 1, false);
 
 
 --
--- TOC entry 2215 (class 0 OID 16417)
+-- TOC entry 2214 (class 0 OID 17663)
 -- Dependencies: 188
 -- Data for Name: musical_instruments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -613,7 +611,7 @@ INSERT INTO musical_instruments VALUES (17, 'ukulele');
 
 
 --
--- TOC entry 2250 (class 0 OID 0)
+-- TOC entry 2249 (class 0 OID 0)
 -- Dependencies: 187
 -- Name: musical_instruments_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -622,7 +620,7 @@ SELECT pg_catalog.setval('musical_instruments_id_seq', 17, true);
 
 
 --
--- TOC entry 2213 (class 0 OID 16407)
+-- TOC entry 2212 (class 0 OID 17654)
 -- Dependencies: 186
 -- Data for Name: musicians; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -646,7 +644,7 @@ INSERT INTO musicians VALUES (16, 'George Harrison', '1943-02-25', false, 4, '20
 
 
 --
--- TOC entry 2251 (class 0 OID 0)
+-- TOC entry 2250 (class 0 OID 0)
 -- Dependencies: 185
 -- Name: musicians_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -655,7 +653,7 @@ SELECT pg_catalog.setval('musicians_id_seq', 16, true);
 
 
 --
--- TOC entry 2227 (class 0 OID 16472)
+-- TOC entry 2226 (class 0 OID 17719)
 -- Dependencies: 200
 -- Data for Name: musicians_music_groups_relation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -686,7 +684,7 @@ INSERT INTO musicians_music_groups_relation VALUES (23, 20, 16);
 
 
 --
--- TOC entry 2252 (class 0 OID 0)
+-- TOC entry 2251 (class 0 OID 0)
 -- Dependencies: 199
 -- Name: musicians_music_groups_relation_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -695,7 +693,7 @@ SELECT pg_catalog.setval('musicians_music_groups_relation_id_seq', 23, true);
 
 
 --
--- TOC entry 2229 (class 0 OID 16480)
+-- TOC entry 2228 (class 0 OID 17727)
 -- Dependencies: 202
 -- Data for Name: musicians_music_rewards_relation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -727,7 +725,7 @@ INSERT INTO musicians_music_rewards_relation VALUES (24, 1, 16);
 
 
 --
--- TOC entry 2253 (class 0 OID 0)
+-- TOC entry 2252 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: musicians_music_rewards_relation_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -736,7 +734,7 @@ SELECT pg_catalog.setval('musicians_music_rewards_relation_id_seq', 24, true);
 
 
 --
--- TOC entry 2221 (class 0 OID 16443)
+-- TOC entry 2220 (class 0 OID 17690)
 -- Dependencies: 194
 -- Data for Name: musicians_musical_instruments_relation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -797,7 +795,7 @@ INSERT INTO musicians_musical_instruments_relation VALUES (53, 17, 16);
 
 
 --
--- TOC entry 2254 (class 0 OID 0)
+-- TOC entry 2253 (class 0 OID 0)
 -- Dependencies: 193
 -- Name: musicians_musical_instruments_relation_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -806,7 +804,7 @@ SELECT pg_catalog.setval('musicians_musical_instruments_relation_id_seq', 53, tr
 
 
 --
--- TOC entry 2068 (class 2606 OID 16440)
+-- TOC entry 2068 (class 2606 OID 17687)
 -- Name: countries countries_country_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -815,7 +813,7 @@ ALTER TABLE ONLY countries
 
 
 --
--- TOC entry 2070 (class 2606 OID 16438)
+-- TOC entry 2070 (class 2606 OID 17685)
 -- Name: countries countries_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -824,7 +822,7 @@ ALTER TABLE ONLY countries
 
 
 --
--- TOC entry 2074 (class 2606 OID 16458)
+-- TOC entry 2074 (class 2606 OID 17705)
 -- Name: genres genres_genre_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -833,7 +831,7 @@ ALTER TABLE ONLY genres
 
 
 --
--- TOC entry 2076 (class 2606 OID 16456)
+-- TOC entry 2076 (class 2606 OID 17703)
 -- Name: genres genres_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -842,7 +840,7 @@ ALTER TABLE ONLY genres
 
 
 --
--- TOC entry 2066 (class 2606 OID 16430)
+-- TOC entry 2066 (class 2606 OID 17677)
 -- Name: music_groups music_groups_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -851,7 +849,7 @@ ALTER TABLE ONLY music_groups
 
 
 --
--- TOC entry 2078 (class 2606 OID 16469)
+-- TOC entry 2078 (class 2606 OID 17716)
 -- Name: music_rewards music_rewards_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -860,7 +858,7 @@ ALTER TABLE ONLY music_rewards
 
 
 --
--- TOC entry 2080 (class 2606 OID 16467)
+-- TOC entry 2080 (class 2606 OID 17714)
 -- Name: music_rewards music_rewards_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -869,7 +867,7 @@ ALTER TABLE ONLY music_rewards
 
 
 --
--- TOC entry 2064 (class 2606 OID 16422)
+-- TOC entry 2064 (class 2606 OID 17668)
 -- Name: musical_instruments musical_instruments_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -878,7 +876,7 @@ ALTER TABLE ONLY musical_instruments
 
 
 --
--- TOC entry 2082 (class 2606 OID 16477)
+-- TOC entry 2082 (class 2606 OID 17724)
 -- Name: musicians_music_groups_relation musicians_music_groups_relation_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -887,7 +885,7 @@ ALTER TABLE ONLY musicians_music_groups_relation
 
 
 --
--- TOC entry 2084 (class 2606 OID 16485)
+-- TOC entry 2084 (class 2606 OID 17732)
 -- Name: musicians_music_rewards_relation musicians_music_rewards_relation_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -896,7 +894,7 @@ ALTER TABLE ONLY musicians_music_rewards_relation
 
 
 --
--- TOC entry 2072 (class 2606 OID 16448)
+-- TOC entry 2072 (class 2606 OID 17695)
 -- Name: musicians_musical_instruments_relation musicians_musical_instruments_relation_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -905,7 +903,7 @@ ALTER TABLE ONLY musicians_musical_instruments_relation
 
 
 --
--- TOC entry 2062 (class 2606 OID 16414)
+-- TOC entry 2062 (class 2606 OID 17660)
 -- Name: musicians musicians_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -914,7 +912,7 @@ ALTER TABLE ONLY musicians
 
 
 --
--- TOC entry 2086 (class 2606 OID 16491)
+-- TOC entry 2086 (class 2606 OID 17738)
 -- Name: music_groups music_groups_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -923,34 +921,34 @@ ALTER TABLE ONLY music_groups
 
 
 --
--- TOC entry 2087 (class 2606 OID 16496)
+-- TOC entry 2087 (class 2606 OID 17743)
 -- Name: music_groups music_groups_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY music_groups
-    ADD CONSTRAINT music_groups_fk1 FOREIGN KEY (country) REFERENCES countries(id);
+    ADD CONSTRAINT music_groups_fk1 FOREIGN KEY (country_id) REFERENCES countries(id);
 
 
 --
--- TOC entry 2090 (class 2606 OID 16511)
+-- TOC entry 2090 (class 2606 OID 17758)
 -- Name: music_rewards music_rewards_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY music_rewards
-    ADD CONSTRAINT music_rewards_fk0 FOREIGN KEY (country) REFERENCES countries(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT music_rewards_fk0 FOREIGN KEY (country_m) REFERENCES countries(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 2085 (class 2606 OID 16486)
+-- TOC entry 2085 (class 2606 OID 17733)
 -- Name: musicians musicians_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY musicians
-    ADD CONSTRAINT musicians_fk0 FOREIGN KEY (country) REFERENCES countries(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT musicians_fk0 FOREIGN KEY (id_country) REFERENCES countries(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- TOC entry 2091 (class 2606 OID 16516)
+-- TOC entry 2091 (class 2606 OID 17763)
 -- Name: musicians_music_groups_relation musicians_music_groups_relation_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -959,16 +957,7 @@ ALTER TABLE ONLY musicians_music_groups_relation
 
 
 --
--- TOC entry 2092 (class 2606 OID 16521)
--- Name: musicians_music_groups_relation musicians_music_groups_relation_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY musicians_music_groups_relation
-    ADD CONSTRAINT musicians_music_groups_relation_fk1 FOREIGN KEY (id_music_group) REFERENCES music_groups(id);
-
-
---
--- TOC entry 2093 (class 2606 OID 16526)
+-- TOC entry 2092 (class 2606 OID 17773)
 -- Name: musicians_music_rewards_relation musicians_music_rewards_relation_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -977,7 +966,7 @@ ALTER TABLE ONLY musicians_music_rewards_relation
 
 
 --
--- TOC entry 2094 (class 2606 OID 16531)
+-- TOC entry 2093 (class 2606 OID 17778)
 -- Name: musicians_music_rewards_relation musicians_music_rewards_relation_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -986,7 +975,7 @@ ALTER TABLE ONLY musicians_music_rewards_relation
 
 
 --
--- TOC entry 2088 (class 2606 OID 16501)
+-- TOC entry 2088 (class 2606 OID 17748)
 -- Name: musicians_musical_instruments_relation musicians_musical_instruments_relation_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -995,7 +984,7 @@ ALTER TABLE ONLY musicians_musical_instruments_relation
 
 
 --
--- TOC entry 2089 (class 2606 OID 16506)
+-- TOC entry 2089 (class 2606 OID 17753)
 -- Name: musicians_musical_instruments_relation musicians_musical_instruments_relation_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1003,7 +992,7 @@ ALTER TABLE ONLY musicians_musical_instruments_relation
     ADD CONSTRAINT musicians_musical_instruments_relation_fk1 FOREIGN KEY (id_musician) REFERENCES musicians(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
--- Completed on 2017-11-01 22:14:31
+-- Completed on 2017-11-15 21:09:17
 
 --
 -- PostgreSQL database dump complete

@@ -1,30 +1,30 @@
-Ïðîñòûå çàïðîñû:
-1)Âûáðàòü 3 ñàìûõ ìîëîäûõ ìóçûêàíòîâ
+ÐŸÑ€Ð¾ÑÑ‚Ñ‹Ðµ Ð·Ð°Ð¿Ñ€Ð¾ÑÑ‹:
+1)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ 3 ÑÐ°Ð¼Ñ‹Ñ… Ð¼Ð¾Ð»Ð¾Ð´Ñ‹Ñ… Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð½Ñ‚Ð¾Ð²
 
 SELECT age(data_death,birthday) FROM musicians ORDER BY age LIMIT 3;
 
-2)Âûáðàòü âñåõ ìóçûêàíòîâ, íå èìåþùèõ ìóçûêàëüíîå îáðàçîâàíèå è ñêîí÷àâøèõñÿ â 21 âåêå
+2)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð²ÑÐµÑ… Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð½Ñ‚Ð¾Ð², Ð½Ðµ Ð¸Ð¼ÐµÑŽÑ‰Ð¸Ñ… Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð»ÑŒÐ½Ð¾Ðµ Ð¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¸ ÑÐºÐ¾Ð½Ñ‡Ð°Ð²ÑˆÐ¸Ñ…ÑÑ Ð² 21 Ð²ÐµÐºÐµ
 
 SELECT name_surname, cause_death FROM musicians WHERE (data_death > '2000-01-01') GROUP BY (name_surname, cause_death, music_education) HAVING musicians.music_education='No'; 
 
-3)Âûáðàòü âñå æàíðû â íàçâàíèè êîòîðûõ ïðèñóòñòâóåò ñëîâî "Rock"
+3)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð²ÑÐµ Ð¶Ð°Ð½Ñ€Ñ‹ Ð² Ð½Ð°Ð·Ð²Ð°Ð½Ð¸Ð¸ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ñ… Ð¿Ñ€Ð¸ÑÑƒÑ‚ÑÑ‚Ð²ÑƒÐµÑ‚ ÑÐ»Ð¾Ð²Ð¾ "Rock"
 
 SELECT * FROM genres WHERE genre LIKE '%Rock%';
 
-4)Âûâåñòè çíà÷åíèå ñðåäíåãî âîçðàñòà ìóçûêàíòîâ
+4)Ð’Ñ‹Ð²ÐµÑÑ‚Ð¸ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÑ€ÐµÐ´Ð½ÐµÐ³Ð¾ Ð²Ð¾Ð·Ñ€Ð°ÑÑ‚Ð° Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð½Ñ‚Ð¾Ð²
 
 SELECT AVG(age(data_death,birthday)) FROM musicians;
 
-Ñðåäíèå çàïðîñû:
-1)Âûáðàòü âñåõ ìóçûêàíòîâ èç Âåëèêîáðèòàíèè è ñîðòèðîâàòü èõ îò ñòðàøåãî ê ìëàäøåìó.
+Ð¡Ñ€ÐµÐ´Ð½Ð¸Ðµ Ð·Ð°Ð¿Ñ€Ð¾ÑÑ‹:
+1)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð²ÑÐµÑ… Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð½Ñ‚Ð¾Ð² Ð¸Ð· Ð’ÐµÐ»Ð¸ÐºÐ¾Ð±Ñ€Ð¸Ñ‚Ð°Ð½Ð¸Ð¸ Ð¸ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ð¸Ñ… Ð¾Ñ‚ ÑÑ‚Ñ€Ð°ÑˆÐµÐ³Ð¾ Ðº Ð¼Ð»Ð°Ð´ÑˆÐµÐ¼Ñƒ.
 
 SELECT name_surname, country, age(data_death,birthday) FROM (musicians CROSS JOIN countries) WHERE (musicians.id_country = countries.id AND countries.country = 'Great Britain') ORDER BY age DESC;
 
-2)Âûáðàòü ìóçûêàíòîâ, êîòîðûå ïîëó÷èëè áðèòàíñêóþ ïðåìèþ, ó÷ðåæäåííóþ ïîñëå 1955 ãîäà
+2)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð¼ÑƒÐ·Ñ‹ÐºÐ°Ð½Ñ‚Ð¾Ð², ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸ Ð±Ñ€Ð¸Ñ‚Ð°Ð½ÑÐºÑƒÑŽ Ð¿Ñ€ÐµÐ¼Ð¸ÑŽ, ÑƒÑ‡Ñ€ÐµÐ¶Ð´ÐµÐ½Ð½ÑƒÑŽ Ð¿Ð¾ÑÐ»Ðµ 1955 Ð³Ð¾Ð´Ð°
 
 SELECT name_surname, name, begin FROM (musicians_music_rewards_relation CROSS JOIN musicians CROSS JOIN music_rewards CROSS JOIN countries) WHERE (musicians_music_rewards_relation. id_music_reward = music_rewards.id AND musicians_music_rewards_relation.id_musician = musicians.id AND music_rewards.country_m=countries.id AND countries.country = 'Great Britain' AND music_rewards.begin>'1955');
 
-3)Âûáðàòü âîêàëèñòîâ èç Àìåðèêè, êîòîðûå ñêîí÷àëèñü ïîñëå 1990 ãîäà
+3)Ð’Ñ‹Ð±Ñ€Ð°Ñ‚ÑŒ Ð²Ð¾ÐºÐ°Ð»Ð¸ÑÑ‚Ð¾Ð² Ð¸Ð· ÐÐ¼ÐµÑ€Ð¸ÐºÐ¸, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ ÑÐºÐ¾Ð½Ñ‡Ð°Ð»Ð¸ÑÑŒ Ð¿Ð¾ÑÐ»Ðµ 1990 Ð³Ð¾Ð´Ð°
 
 SELECT name_surname FROM (musicians CROSS JOIN countries CROSS JOIN musical_instruments CROSS JOIN musicians_musical_instruments_relation) WHERE (musicians.id_country = countries.id AND musicians_musical_instruments_relation. id_instrument = musical_instruments.id AND musicians_musical_instruments_relation.id_musician=musicians.id AND countries.country = 'USA' AND musical_instruments.instrument = 'vocal' ) GROUP BY (name_surname, data_death) HAVING musicians.data_death>='1990-01-01';
 

@@ -1,7 +1,7 @@
 Простые запросы:
-1)Выбрать 3 самых молодых музыкантов
+1)Выбрать 3 самых молодых музыкантов и вывести их причину смерти
 
-SELECT age(data_death,birthday) FROM musicians ORDER BY age LIMIT 3;
+SELECT age(data_death,birthday), cause_death FROM musicians ORDER BY age LIMIT 3;
 
 2)Выбрать всех музыкантов, не имеющих музыкальное образование и скончавшихся в 21 веке
 
@@ -11,24 +11,24 @@ SELECT name_surname, cause_death FROM musicians WHERE (data_death > '2000-01-01'
 
 SELECT name,begin FROM Music_rewards WHERE name LIKE '%Awards%' AND Music_rewards.begin>1962;
 
-4)Вывести значение среднего возраста музыкантов
-
-SELECT AVG(age(data_death,birthday)) FROM musicians;
-
-5)Вывести 3 самых старых музыкантов, у которых в причине смерти содержится слово ‘cancer’ и которые родились после 1900 года.
+4)Вывести 3 самых старых музыкантов, у которых в причине смерти содержится слово ‘cancer’ и которые родились после 1900 года.
 
 SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE (cause_death LIKE '%cancer%' ) GROUP BY (name_surname, cause_death, age, birthday, data_death) HAVING (musicians.birthday > '1900-01-01' ) ORDER BY age DESC LIMIT 3;
+
+//5)Вывести значение среднего возраста музыкантов
+
+SELECT AVG(age(data_death,birthday)) FROM musicians;
 
 Средние запросы:
 1)Выбрать всех музыкантов из Великобритании и сортировать их от страшего к младшему.
 
-SELECT name_surname, country, age(data_death,birthday) FROM (musicians INNER JOIN countries ON (musicians.id_country = countries.id)) WHERE (countries.country = 'Great Britain') ORDER BY age DESC;
+SELECT name_surname, country, age(data_death,birthday) FROM (musicians CROSS JOIN countries) WHERE (musicians.id_country = countries.id AND countries.country = 'Great Britain') ORDER BY age DESC;
 
 2)Выбрать музыкантов, которые получили британскую премию, учрежденную после 1955 года
 
-SELECT name_surname, name, begin FROM (countries INNER JOIN (music_rewards INNER JOIN (musicians_music_rewards_relation INNER JOIN musicians ON (musicians_music_rewards_relation.id_musician = musicians.id)) ON (musicians_music_rewards_relation. id_music_reward = music_rewards.id)) ON (music_rewards.country_m=countries.id)) WHERE (countries.country = 'Great Britain' AND music_rewards.begin>'1955');
+SELECT name_surname, name, begin FROM (musicians_music_rewards_relation CROSS JOIN musicians CROSS JOIN music_rewards CROSS JOIN countries) WHERE (musicians_music_rewards_relation. id_music_reward = music_rewards.id AND musicians_music_rewards_relation.id_musician = musicians.id AND music_rewards.country_m=countries.id AND countries.country = 'Great Britain' AND music_rewards.begin>'1955');
 
-3)Выбрать вокалистов из Америки, которые скончались после 1990 года
+3)Выбрать вокалистов из Америки, которые скончались после 1990 года, вывести причину и дату их смерти
 
-SELECT name_surname FROM (countries INNER JOIN (musical_instruments INNER JOIN (musicians INNER JOIN musicians_musical_instruments_relation ON (musicians_musical_instruments_relation.id_musician=musicians.id)) ON (musicians_musical_instruments_relation. id_instrument = musical_instruments.id)) ON (musicians.id_country = countries.id)) WHERE (countries.country = 'USA' AND musical_instruments.instrument = 'vocal') GROUP BY (name_surname, data_death) HAVING musicians.data_death>='1990-01-01';
+SELECT name_surname,data_death,cause_death FROM (musicians CROSS JOIN countries CROSS JOIN musical_instruments CROSS JOIN musicians_musical_instruments_relation) WHERE (musicians.id_country = countries.id AND musicians_musical_instruments_relation. id_instrument = musical_instruments.id AND musicians_musical_instruments_relation.id_musician=musicians.id AND countries.country = 'USA' AND musical_instruments.instrument = 'vocal' ) GROUP BY (name_surname, data_death, cause_death) HAVING musicians.data_death>='1990-01-01';
 

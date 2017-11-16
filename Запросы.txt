@@ -30,5 +30,5 @@ SELECT name_surname, name, begin FROM (countries INNER JOIN (music_rewards INNER
 
 3)Выбрать вокалистов из Америки, которые скончались после 1990 года
 
-SELECT name_surname FROM (musicians CROSS JOIN countries CROSS JOIN musical_instruments CROSS JOIN musicians_musical_instruments_relation) WHERE (musicians.id_country = countries.id AND musicians_musical_instruments_relation. id_instrument = musical_instruments.id AND musicians_musical_instruments_relation.id_musician=musicians.id AND countries.country = 'USA' AND musical_instruments.instrument = 'vocal' ) GROUP BY (name_surname, data_death) HAVING musicians.data_death>='1990-01-01';
+SELECT name_surname FROM (countries INNER JOIN (musical_instruments INNER JOIN (musicians INNER JOIN musicians_musical_instruments_relation ON (musicians_musical_instruments_relation.id_musician=musicians.id)) ON (musicians_musical_instruments_relation. id_instrument = musical_instruments.id)) ON (musicians.id_country = countries.id)) WHERE (countries.country = 'USA' AND musical_instruments.instrument = 'vocal') GROUP BY (name_surname, data_death) HAVING musicians.data_death>='1990-01-01';
 

@@ -22,7 +22,7 @@ SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE 
 Средние запросы:
 1)Выбрать всех музыкантов из Великобритании и сортировать их от страшего к младшему.
 
-SELECT name_surname, country, age(data_death,birthday) FROM (musicians CROSS JOIN countries) WHERE (musicians.id_country = countries.id AND countries.country = 'Great Britain') ORDER BY age DESC;
+SELECT name_surname, country, age(data_death,birthday) FROM (musicians INNER JOIN countries ON (musicians.id_country = countries.id)) WHERE (countries.country = 'Great Britain') ORDER BY age DESC;
 
 2)Выбрать музыкантов, которые получили британскую премию, учрежденную после 1955 года
 

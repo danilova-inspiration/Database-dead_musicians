@@ -15,6 +15,10 @@ SELECT * FROM genres WHERE genre LIKE '%Rock%';
 
 SELECT AVG(age(data_death,birthday)) FROM musicians;
 
+5)Вывести 3 самых старых музыкантов, у которых в причине смерти содержится слово ‘cancer’ и которые родились после 1900 года.
+
+SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE (cause_death LIKE '%cancer%' ) GROUP BY (name_surname, cause_death, age, birthday, data_death) HAVING (musicians.birthday > '1900-01-01' ) ORDER BY age DESC LIMIT 3;
+
 Средние запросы:
 1)Выбрать всех музыкантов из Великобритании и сортировать их от страшего к младшему.
 

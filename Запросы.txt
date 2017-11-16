@@ -7,9 +7,9 @@ SELECT age(data_death,birthday) FROM musicians ORDER BY age LIMIT 3;
 
 SELECT name_surname, cause_death FROM musicians WHERE (data_death > '2000-01-01') GROUP BY (name_surname, cause_death, music_education) HAVING musicians.music_education='No'; 
 
-3)Выбрать все жанры в названии которых присутствует слово "Rock"
+3)Выбрать все награды в названии которых присутствует слово "Awards" и которые были учреждены после 1962 года
 
-SELECT * FROM genres WHERE genre LIKE '%Rock%';
+SELECT name,begin FROM Music_rewards WHERE name LIKE '%Awards%' AND Music_rewards.begin>1962;
 
 4)Вывести значение среднего возраста музыкантов
 

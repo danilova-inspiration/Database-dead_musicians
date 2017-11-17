@@ -15,9 +15,9 @@ SELECT name,begin FROM Music_rewards WHERE name LIKE '%Awards%' AND Music_reward
 
 SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE (cause_death LIKE '%cancer%' ) GROUP BY (name_surname, cause_death, age, birthday, data_death) HAVING (musicians.birthday > '1900-01-01' ) ORDER BY age DESC LIMIT 3;
 
-//5)Вывести значение среднего возраста музыкантов
+5)Вывести значение среднего возраста музыкантов, которые скончались от сердечной недостаточности
 
-SELECT AVG(age(data_death,birthday)) FROM musicians;
+SELECT AVG(age(data_death,birthday)) FROM musicians WHERE (musicians.cause_death LIKE '%Heart failure%');
 
 Средние запросы:
 1)Выбрать всех музыкантов из Великобритании и сортировать их от страшего к младшему.

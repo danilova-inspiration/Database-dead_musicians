@@ -1,152 +1,117 @@
 Простые запросы:
-1)Выбрать 3 самых молодых музыкантов и вывести их причину смерти
 
-SELECT name_surname, age(data_death,birthday), cause_death FROM musicians ORDER BY age LIMIT 3;
-
-До оптимизации:
-
-  QUERY PLAN
--------------------------------------------------------------------------------------------------------------------
- Limit  (cost=1.49..1.49 rows=3 width=528) (actual time=0.222..0.225 rows=3 loops=1)
-   ->  Sort  (cost=1.49..1.53 rows=16 width=528) (actual time=0.220..0.222 rows=3 loops=1)
-         Sort Key: (age((data_death)::timestamp with time zone, (birthday)::timestamp with time zone))
-         Sort Method: top-N heapsort  Memory: 25kB
-         ->  Seq Scan on musicians  (cost=0.00..1.28 rows=16 width=528) (actual time=0.072..0.152 rows=16 loops=1)
- Planning time: 0.741 ms
- Execution time: 0.343 ms
-(7 строк)
-
-Оптимизация: добавлен индекс по id страны и имении фамилии
-CREATE INDEX ON musicians(name_surname);
-CREATE INDEX ON musicians(id_country);
-EXPLAIN(ANALYZE) SELECT name_surname, age(data_death,birthday), cause_death FROM musicians ORDER BY age LIMIT 3;
-
-После оптимизации:
-
-                                                     QUERY PLAN
--------------------------------------------------------------------------------------------------------------------
- Limit  (cost=1.49..1.49 rows=3 width=528) (actual time=0.123..0.124 rows=3 loops=1)
-   ->  Sort  (cost=1.49..1.53 rows=16 width=528) (actual time=0.121..0.122 rows=3 loops=1)
-         Sort Key: (age((data_death)::timestamp with time zone, (birthday)::timestamp with time zone))
-         Sort Method: top-N heapsort  Memory: 25kB
-         ->  Seq Scan on musicians  (cost=0.00..1.28 rows=16 width=528) (actual time=0.039..0.086 rows=16 loops=1)
- Planning time: 1.291 ms
- Execution time: 0.170 ms
-(7 строк)
-
-2)Выбрать всех музыкантов, не имеющих музыкальное образование и скончавшихся в 21 веке
+1)Выбрать всех музыкантов, не имеющих музыкальное образование и скончавшихся в 21 веке
 
 SELECT name_surname, cause_death FROM musicians WHERE (data_death > '2000-01-01'AND musicians.music_education='No'); 
 
 До оптимизации:
 
- QUERY PLAN
+                                             QUERY PLAN
 -----------------------------------------------------------------------------------------------------
- Seq Scan on musicians  (cost=0.00..1.20 rows=3 width=512) (actual time=0.058..0.066 rows=8 loops=1)
+ Seq Scan on musicians  (cost=0.00..1.20 rows=3 width=512) (actual time=0.056..0.067 rows=8 loops=1)
    Filter: ((NOT music_education) AND (data_death > '2000-01-01'::date))
    Rows Removed by Filter: 8
- Planning time: 0.290 ms
- Execution time: 0.112 ms
+ Planning time: 0.874 ms
+ Execution time: 0.141 ms
 (5 строк)
 
-Оптимизация: добавлен индекс по имени фамилии музыканта
-CREATE INDEX ON musicians(name_surname);
+Оптимизация: добавлен индекс по дате смерти музыканта
+CREATE INDEX ON musicians(cause_death);
 EXPLAIN(ANALYZE) SELECT name_surname, cause_death FROM musicians WHERE (data_death > '2000-01-01'AND musicians.music_education='No');
 
 После оптимизации:
 
-  QUERY PLAN
+                                             QUERY PLAN
 -----------------------------------------------------------------------------------------------------
- Seq Scan on musicians  (cost=0.00..1.20 rows=3 width=512) (actual time=0.035..0.043 rows=8 loops=1)
+ Seq Scan on musicians  (cost=0.00..1.20 rows=3 width=512) (actual time=0.031..0.039 rows=8 loops=1)
    Filter: ((NOT music_education) AND (data_death > '2000-01-01'::date))
    Rows Removed by Filter: 8
- Planning time: 1.371 ms
- Execution time: 0.088 ms
+ Planning time: 1.136 ms
+ Execution time: 0.071 ms
 (5 строк)
 
-3)Выбрать все награды в названии которых присутствует слово "Awards" и которые были учреждены после 1962 года
+2)Выбрать все награды в названии которых присутствует слово "Awards" и которые были учреждены после 1962 года
 
 SELECT name,begin FROM Music_rewards WHERE name LIKE '%Awards%' AND Music_rewards.begin>1962;
 
 До оптимизации:
 
-QUERY PLAN
-----------------------------------------------------------------------------------------------------------
- Seq Scan on music_rewards  (cost=0.00..16.15 rows=1 width=160) (actual time=0.061..0.080 rows=8 loops=1)
+                                               QUERY PLAN
+---------------------------------------------------------------------------------------------------------
+ Seq Scan on music_rewards  (cost=0.00..1.23 rows=1 width=160) (actual time=0.563..0.575 rows=8 loops=1)
    Filter: (((name)::text ~~ '%Awards%'::text) AND (begin > 1962))
    Rows Removed by Filter: 7
- Planning time: 0.268 ms
- Execution time: 0.131 ms
+ Planning time: 232.351 ms
+ Execution time: 0.629 ms
 (5 строк)
 
-Оптимизация: добавлен индекс по имени награды
-CREATE INDEX ON Music_rewards(name);
+Оптимизация: добавлен индекс по дате учреждения награды
+CREATE INDEX ON Music_rewards(begin);
 EXPLAIN(ANALYZE)SELECT name,begin FROM Music_rewards WHERE name LIKE '%Awards%' AND Music_rewards.begin>1962;
 
 После оптимизации:
 
-QUERY PLAN
+                                               QUERY PLAN
 ---------------------------------------------------------------------------------------------------------
- Seq Scan on music_rewards  (cost=0.00..1.23 rows=1 width=160) (actual time=0.036..0.047 rows=8 loops=1)
+ Seq Scan on music_rewards  (cost=0.00..1.23 rows=1 width=160) (actual time=0.038..0.048 rows=8 loops=1)
    Filter: (((name)::text ~~ '%Awards%'::text) AND (begin > 1962))
    Rows Removed by Filter: 7
- Planning time: 1.200 ms
- Execution time: 0.088 ms
+ Planning time: 1.291 ms
+ Execution time: 0.083 ms
 (5 строк)
 
-4)Вывести 3 самых старых музыкантов, у которых в причине смерти содержится слово ‘cancer’ и которые родились после 1900 года.
+3)Вывести 3 самых старых музыкантов, у которых в причине смерти содержится слово ‘cancer’ и которые родились после 1900 года.
 
 SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE (cause_death LIKE '%cancer%' AND musicians.birthday > '1900-01-01' ) ORDER BY age DESC LIMIT 3;
 
 До оптимизации:
 
- QUERY PLAN
+                                                   QUERY PLAN
 -----------------------------------------------------------------------------------------------------------------
- Limit  (cost=1.26..1.26 rows=1 width=528) (actual time=0.192..0.194 rows=3 loops=1)
-   ->  Sort  (cost=1.26..1.26 rows=1 width=528) (actual time=0.191..0.192 rows=3 loops=1)
+ Limit  (cost=1.26..1.26 rows=1 width=528) (actual time=0.132..0.133 rows=3 loops=1)
+   ->  Sort  (cost=1.26..1.26 rows=1 width=528) (actual time=0.130..0.130 rows=3 loops=1)
          Sort Key: (age((data_death)::timestamp with time zone, (birthday)::timestamp with time zone)) DESC
          Sort Method: quicksort  Memory: 25kB
-         ->  Seq Scan on musicians  (cost=0.00..1.25 rows=1 width=528) (actual time=0.083..0.101 rows=4 loops=1)
+         ->  Seq Scan on musicians  (cost=0.00..1.25 rows=1 width=528) (actual time=0.076..0.096 rows=4 loops=1)
                Filter: (((cause_death)::text ~~ '%cancer%'::text) AND (birthday > '1900-01-01'::date))
                Rows Removed by Filter: 12
- Planning time: 6.017 ms
- Execution time: 0.260 ms
+ Planning time: 0.358 ms
+ Execution time: 0.205 ms
 (9 строк)
 
-Оптимизация: добавлен индекс по имени фамилии
-CREATE INDEX ON musicians(name_surname);
+Оптимизация: добавлен индекс по дате рождения музыканта
+CREATE INDEX ON musicians(birthday);
 EXPLAIN(ANALYZE)SELECT name_surname, cause_death, age(data_death,birthday) FROM musicians WHERE (cause_death LIKE '%cancer%' AND musicians.birthday > '1900-01-01' ) ORDER BY age DESC LIMIT 3;
 
 После оптимизации:
 
-  QUERY PLAN
+                                                   QUERY PLAN
 -----------------------------------------------------------------------------------------------------------------
- Limit  (cost=1.26..1.26 rows=1 width=528) (actual time=0.103..0.104 rows=3 loops=1)
-   ->  Sort  (cost=1.26..1.26 rows=1 width=528) (actual time=0.101..0.102 rows=3 loops=1)
+ Limit  (cost=1.26..1.26 rows=1 width=528) (actual time=0.095..0.096 rows=3 loops=1)
+   ->  Sort  (cost=1.26..1.26 rows=1 width=528) (actual time=0.093..0.094 rows=3 loops=1)
          Sort Key: (age((data_death)::timestamp with time zone, (birthday)::timestamp with time zone)) DESC
          Sort Method: quicksort  Memory: 25kB
-         ->  Seq Scan on musicians  (cost=0.00..1.25 rows=1 width=528) (actual time=0.057..0.075 rows=4 loops=1)
+         ->  Seq Scan on musicians  (cost=0.00..1.25 rows=1 width=528) (actual time=0.053..0.071 rows=4 loops=1)
                Filter: (((cause_death)::text ~~ '%cancer%'::text) AND (birthday > '1900-01-01'::date))
                Rows Removed by Filter: 12
- Planning time: 1.441 ms
- Execution time: 0.164 ms
+ Planning time: 1.582 ms
+ Execution time: 0.146 ms
 (9 строк)
 
-
-5)Вывести значение среднего возраста музыкантов, которые скончались от сердечной недостаточности
+4)Вывести значение среднего возраста музыкантов, которые скончались от сердечной недостаточности
 
 SELECT AVG(age(data_death,birthday)) FROM musicians WHERE (musicians.cause_death LIKE '%Heart failure%');
 
 До оптимизации:
 
-  QUERY PLAN
+                                               QUERY PLAN
 ---------------------------------------------------------------------------------------------------------
- Aggregate  (cost=1.21..1.22 rows=1 width=16) (actual time=0.130..0.130 rows=1 loops=1)
-   ->  Seq Scan on musicians  (cost=0.00..1.20 rows=1 width=8) (actual time=0.057..0.074 rows=3 loops=1)
+ Aggregate  (cost=1.21..1.22 rows=1 width=16) (actual time=0.094..0.094 rows=1 loops=1)
+   ->  Seq Scan on musicians  (cost=0.00..1.20 rows=1 width=8) (actual time=0.034..0.044 rows=3 loops=1)
          Filter: ((cause_death)::text ~~ '%Heart failure%'::text)
          Rows Removed by Filter: 13
- Planning time: 0.533 ms
- Execution time: 0.260 ms
+ Planning time: 0.309 ms
+ Execution time: 0.209 ms
 (6 строк)
 
 Оптимизация: добавлен индекс по причине смерти
@@ -155,14 +120,14 @@ EXPLAIN(ANALYZE)SELECT AVG(age(data_death,birthday)) FROM musicians WHERE (music
 
 После оптимизации:
 
- QUERY PLAN
+                                               QUERY PLAN
 ---------------------------------------------------------------------------------------------------------
- Aggregate  (cost=1.21..1.22 rows=1 width=16) (actual time=0.116..0.116 rows=1 loops=1)
-   ->  Seq Scan on musicians  (cost=0.00..1.20 rows=1 width=8) (actual time=0.056..0.068 rows=3 loops=1)
+ Aggregate  (cost=1.21..1.22 rows=1 width=16) (actual time=0.089..0.089 rows=1 loops=1)
+   ->  Seq Scan on musicians  (cost=0.00..1.20 rows=1 width=8) (actual time=0.038..0.047 rows=3 loops=1)
          Filter: ((cause_death)::text ~~ '%Heart failure%'::text)
          Rows Removed by Filter: 13
- Planning time: 1.368 ms
- Execution time: 0.222 ms
+ Planning time: 1.300 ms
+ Execution time: 0.185 ms
 (6 строк)
 
 Средние запросы:
@@ -172,44 +137,44 @@ SELECT name_surname, country, age(data_death,birthday) FROM (musicians AS m INNE
 
 До оптимизации:
 
-QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=20.13..20.14 rows=1 width=328) (actual time=1.018..1.019 rows=6 loops=1)
+                                                        QUERY PLAN                                                      
+--------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2.39..2.40 rows=2 width=328) (actual time=0.260..0.262 rows=6 loops=1)
    Sort Key: (age((musicians.data_death)::timestamp with time zone, (musicians.birthday)::timestamp with time zone)) DESC
    Sort Method: quicksort  Memory: 25kB
-   ->  Hash Join  (cost=8.18..20.12 rows=1 width=328) (actual time=0.861..0.900 rows=6 loops=1)
+   ->  Hash Join  (cost=1.14..2.38 rows=2 width=328) (actual time=0.098..0.135 rows=6 loops=1)
          Hash Cond: (musicians.id_country = countries.id)
-         ->  Seq Scan on musicians  (cost=0.00..11.40 rows=140 width=168) (actual time=0.036..0.044 rows=16 loops=1)
-         ->  Hash  (cost=8.17..8.17 rows=1 width=160) (actual time=0.060..0.060 rows=1 loops=1)
+         ->  Seq Scan on musicians  (cost=0.00..1.16 rows=16 width=168) (actual time=0.027..0.031 rows=16 loops=1)
+         ->  Hash  (cost=1.13..1.13 rows=1 width=160) (actual time=0.028..0.028 rows=1 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Index Scan using countries_country_key on countries  (cost=0.15..8.17 rows=1 width=160) (actual time=0.050..0.051 rows=1 loops=1)
-                     Index Cond: ((country)::text = 'Great Britain'::text)
- Planning time: 0.431 ms
- Execution time: 1.117 ms
-(12 строк)
+               ->  Seq Scan on countries  (cost=0.00..1.13 rows=1 width=160) (actual time=0.019..0.022 rows=1 loops=1)
+                     Filter: ((country)::text = 'Great Britain'::text)
+                     Rows Removed by Filter: 9
+ Planning time: 0.492 ms
+ Execution time: 0.359 ms
+(13 строк)
 
-Оптимизация: добавлен индекс по id страны
-
-CREATE INDEX ON musicians(id_country);
+Оптимизация: добавлен индекс по названию страны
+CREATE INDEX ON countries(country);
 EXPLAIN (ANALYZE) SELECT name_surname, country, age(data_death,birthday) FROM (musicians CROSS JOIN countries) WHERE (musicians.id_country = countries.id AND countries.country = 'Great Britain') ORDER BY age DESC;
 
 После оптимизации:
-
-QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------
- Sort  (cost=9.43..9.43 rows=1 width=328) (actual time=0.189..0.191 rows=6 loops=1)
+                                                        QUERY PLAN                                                      
+--------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=2.39..2.40 rows=2 width=328) (actual time=0.261..0.263 rows=6 loops=1)
    Sort Key: (age((musicians.data_death)::timestamp with time zone, (musicians.birthday)::timestamp with time zone)) DESC
    Sort Method: quicksort  Memory: 25kB
-   ->  Hash Join  (cost=8.18..9.42 rows=1 width=328) (actual time=0.135..0.163 rows=6 loops=1)
+   ->  Hash Join  (cost=1.14..2.38 rows=2 width=328) (actual time=0.168..0.201 rows=6 loops=1)
          Hash Cond: (musicians.id_country = countries.id)
-         ->  Seq Scan on musicians  (cost=0.00..1.16 rows=16 width=168) (actual time=0.030..0.034 rows=16 loops=1)
-         ->  Hash  (cost=8.17..8.17 rows=1 width=160) (actual time=0.051..0.051 rows=1 loops=1)
+         ->  Seq Scan on musicians  (cost=0.00..1.16 rows=16 width=168) (actual time=0.039..0.045 rows=16 loops=1)
+         ->  Hash  (cost=1.13..1.13 rows=1 width=160) (actual time=0.071..0.071 rows=1 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Index Scan using countries_country_key on countries  (cost=0.15..8.17 rows=1 width=160) (actual time=0.030..0.031 rows=1 loops=1)
-                     Index Cond: ((country)::text = 'Great Britain'::text)
- Planning time: 1.972 ms
- Execution time: 0.275 ms
-(12 строк)
+               ->  Seq Scan on countries  (cost=0.00..1.13 rows=1 width=160) (actual time=0.033..0.038 rows=1 loops=1)
+                     Filter: ((country)::text = 'Great Britain'::text)
+                     Rows Removed by Filter: 9
+ Planning time: 1.673 ms
+ Execution time: 0.346 ms
+(13 строк)
 
 2)Выбрать музыкантов, которые получили британскую премию, учрежденную после 1955 года
 
@@ -217,58 +182,62 @@ SELECT name_surname, name, begin FROM (countries AS c INNER JOIN (music_rewards 
 
 До оптимизации:
 
- QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Nested Loop  (cost=23.97..62.78 rows=5 width=316) (actual time=0.206..0.239 rows=6 loops=1)
-   ->  Hash Join  (cost=23.84..61.94 rows=5 width=164) (actual time=0.192..0.204 rows=6 loops=1)
+                                                                   QUERY PLAN                                           
+------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=3.75..42.52 rows=136 width=316) (actual time=0.301..0.320 rows=6 loops=1)
+   Hash Cond: (mmrr.id_musician = m.id)
+   ->  Hash Join  (cost=2.39..40.54 rows=136 width=164) (actual time=0.224..0.239 rows=6 loops=1)
          Hash Cond: (mmrr.id_music_reward = mr.id)
-         ->  Seq Scan on musicians_music_rewards_relation mmrr  (cost=0.00..30.40 rows=2040 width=8) (actual time=0.034..0.038 rows=24 loops=1)
-         ->  Hash  (cost=23.83..23.83 rows=1 width=164) (actual time=0.130..0.130 rows=5 loops=1)
+         ->  Seq Scan on musicians_music_rewards_relation mmrr  (cost=0.00..30.40 rows=2040 width=8) (actual time=0.099..0.102 rows=24 loops=1)
+         ->  Hash  (cost=2.38..2.38 rows=1 width=164) (actual time=0.083..0.083 rows=5 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Hash Join  (cost=8.18..23.83 rows=1 width=164) (actual time=0.101..0.118 rows=5 loops=1)
-                     Hash Cond: (mr.country_m = c.id)
-                     ->  Seq Scan on music_rewards mr  (cost=0.00..15.13 rows=137 width=168) (actual time=0.022..0.033 rows=14 loops=1)
+               ->  Nested Loop  (cost=0.00..2.38 rows=1 width=164) (actual time=0.055..0.065 rows=5 loops=1)
+                     Join Filter: (c.id = mr.country_m)
+                     Rows Removed by Join Filter: 9
+                     ->  Seq Scan on countries c  (cost=0.00..1.13 rows=1 width=4) (actual time=0.031..0.033 rows=1 loops=1)
+                           Filter: ((country)::text = 'Great Britain'::text)
+                           Rows Removed by Filter: 9
+                     ->  Seq Scan on music_rewards mr  (cost=0.00..1.19 rows=5 width=168) (actual time=0.017..0.024 rows=14 loops=1)
                            Filter: (begin > 1955)
                            Rows Removed by Filter: 1
-                     ->  Hash  (cost=8.17..8.17 rows=1 width=4) (actual time=0.045..0.045 rows=1 loops=1)
-                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
-                           ->  Index Scan using countries_country_key on countries c  (cost=0.15..8.17 rows=1 width=4) (actual time=0.028..0.031 rows=1 loops=1)
-                                 Index Cond: ((country)::text = 'Great Britain'::text)
-   ->  Index Scan using musicians_pk on musicians m  (cost=0.14..0.16 rows=1 width=160) (actual time=0.004..0.004 rows=1 loops=6)
-         Index Cond: (id = mmrr.id_musician)
- Planning time: 0.987 ms
- Execution time: 0.484 ms
-(19 строк)
+   ->  Hash  (cost=1.16..1.16 rows=16 width=160) (actual time=0.058..0.058 rows=16 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         ->  Seq Scan on musicians m  (cost=0.00..1.16 rows=16 width=160) (actual time=0.036..0.043 rows=16 loops=1)
+ Planning time: 40.422 ms
+ Execution time: 0.438 ms
+(21 строка)
 
-Оптимизация: добавлен индекс по имени фамилии музыканта
-
-CREATE INDEX ON musicians(name_surname);
+Оптимизация: добавлен индекс по названию страны и году учреждения музыкальной награды
+CREATE INDEX ON countries(country);
+CREATE INDEX ON Music_rewards(begin);
 EXPLAIN (ANALYZE) SELECT name_surname, name, begin FROM (countries AS c INNER JOIN (music_rewards AS mr INNER JOIN (musicians_music_rewards_relation AS mmrr INNER JOIN musicians AS m ON (mmrr.id_musician = m.id)) ON (mmrr. id_music_reward = mr.id)) ON (mr.country_m=c.id)) WHERE (c.country = 'Great Britain' AND mr.begin>'1955');
 
 После оптимизации: 
 
-                                                                           QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Nested Loop  (cost=23.97..62.78 rows=5 width=316) (actual time=0.186..0.219 rows=6 loops=1)
-   ->  Hash Join  (cost=23.84..61.94 rows=5 width=164) (actual time=0.174..0.187 rows=6 loops=1)
+                                                                   QUERY PLAN                                           
+------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=3.75..42.52 rows=136 width=316) (actual time=0.168..0.186 rows=6 loops=1)
+   Hash Cond: (mmrr.id_musician = m.id)
+   ->  Hash Join  (cost=2.39..40.54 rows=136 width=164) (actual time=0.094..0.107 rows=6 loops=1)
          Hash Cond: (mmrr.id_music_reward = mr.id)
-         ->  Seq Scan on musicians_music_rewards_relation mmrr  (cost=0.00..30.40 rows=2040 width=8) (actual time=0.030..0.033 rows=24 loops=1)
-         ->  Hash  (cost=23.83..23.83 rows=1 width=164) (actual time=0.118..0.118 rows=5 loops=1)
+         ->  Seq Scan on musicians_music_rewards_relation mmrr  (cost=0.00..30.40 rows=2040 width=8) (actual time=0.012..0.015 rows=24 loops=1)
+         ->  Hash  (cost=2.38..2.38 rows=1 width=164) (actual time=0.061..0.061 rows=5 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Hash Join  (cost=8.18..23.83 rows=1 width=164) (actual time=0.098..0.109 rows=5 loops=1)
-                     Hash Cond: (mr.country_m = c.id)
-                     ->  Seq Scan on music_rewards mr  (cost=0.00..15.13 rows=137 width=168) (actual time=0.019..0.027 rows=14 loops=1)
+               ->  Nested Loop  (cost=0.00..2.38 rows=1 width=164) (actual time=0.041..0.053 rows=5 loops=1)
+                     Join Filter: (c.id = mr.country_m)
+                     Rows Removed by Join Filter: 9
+                     ->  Seq Scan on countries c  (cost=0.00..1.13 rows=1 width=4) (actual time=0.021..0.023 rows=1 loops=1)
+                           Filter: ((country)::text = 'Great Britain'::text)
+                           Rows Removed by Filter: 9
+                     ->  Seq Scan on music_rewards mr  (cost=0.00..1.19 rows=5 width=168) (actual time=0.014..0.019 rows=14 loops=1)
                            Filter: (begin > 1955)
                            Rows Removed by Filter: 1
-                     ->  Hash  (cost=8.17..8.17 rows=1 width=4) (actual time=0.042..0.042 rows=1 loops=1)
-                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
-                           ->  Index Scan using countries_country_key on countries c  (cost=0.15..8.17 rows=1 width=4) (actual time=0.033..0.034 rows=1 loops=1)
-                                 Index Cond: ((country)::text = 'Great Britain'::text)
-   ->  Index Scan using musicians_pk on musicians m  (cost=0.14..0.16 rows=1 width=160) (actual time=0.003..0.004 rows=1 loops=6)
-         Index Cond: (id = mmrr.id_musician)
- Planning time: 1.926 ms
- Execution time: 0.359 ms
-(19 строк)
+   ->  Hash  (cost=1.16..1.16 rows=16 width=160) (actual time=0.052..0.052 rows=16 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 9kB
+         ->  Seq Scan on musicians m  (cost=0.00..1.16 rows=16 width=160) (actual time=0.027..0.035 rows=16 loops=1)
+ Planning time: 2.043 ms
+ Execution time: 0.293 ms
+(21 строка)
 
 3)Выбрать вокалистов из Америки, которые скончались после 1990 года, вывести причину и дату их смерти
 
@@ -276,60 +245,61 @@ SELECT name_surname, cause_death, data_death FROM (countries AS c INNER JOIN (mu
 
 До оптимизации:
 
-    QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------------
- Nested Loop  (cost=9.59..14.45 rows=1 width=516) (actual time=0.369..0.427 rows=2 loops=1)
-   ->  Hash Join  (cost=9.44..11.20 rows=3 width=520) (actual time=0.335..0.367 rows=6 loops=1)
+                                                                     QUERY PLAN                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=2.55..7.41 rows=1 width=516) (actual time=0.347..0.408 rows=2 loops=1)
+   ->  Hash Join  (cost=2.40..4.16 rows=3 width=520) (actual time=0.233..0.263 rows=6 loops=1)
          Hash Cond: (mmir.id_musician = m.id)
-         ->  Seq Scan on musicians_musical_instruments_relation mmir  (cost=0.00..1.53 rows=53 width=8) (actual time=0.080..0.091 rows=53 loops=1)
-         ->  Hash  (cost=9.43..9.43 rows=1 width=520) (actual time=0.218..0.218 rows=3 loops=1)
+         ->  Seq Scan on musicians_musical_instruments_relation mmir  (cost=0.00..1.53 rows=53 width=8) (actual time=0.121..0.129 rows=53 loops=1)
+         ->  Hash  (cost=2.39..2.39 rows=1 width=520) (actual time=0.084..0.084 rows=3 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Nested Loop  (cost=0.15..9.43 rows=1 width=520) (actual time=0.149..0.174 rows=3 loops=1)
+               ->  Nested Loop  (cost=0.00..2.39 rows=1 width=520) (actual time=0.059..0.073 rows=3 loops=1)
                      Join Filter: (c.id = m.id_country)
                      Rows Removed by Join Filter: 8
-                     ->  Index Scan using countries_country_key on countries c  (cost=0.15..8.17 rows=1 width=4) (actual time=0.089..0.092 rows=1 loops=1)
-                           Index Cond: ((country)::text = 'USA'::text)
-                     ->  Seq Scan on musicians m  (cost=0.00..1.20 rows=5 width=524) (actual time=0.053..0.063 rows=11 loops=1)
+                     ->  Seq Scan on countries c  (cost=0.00..1.13 rows=1 width=4) (actual time=0.031..0.034 rows=1 loops=1)
+                           Filter: ((country)::text = 'USA'::text)
+                           Rows Removed by Filter: 9
+                     ->  Seq Scan on musicians m  (cost=0.00..1.20 rows=5 width=524) (actual time=0.023..0.029 rows=11 loops=1)
                            Filter: (data_death >= '1990-01-01'::date)
                            Rows Removed by Filter: 5
-   ->  Index Scan using musical_instruments_pk on musical_instruments mi  (cost=0.15..1.07 rows=1 width=4) (actual time=0.008..0.008 rows=0 loops=6)
+   ->  Index Scan using musical_instruments_pk on musical_instruments mi  (cost=0.15..1.07 rows=1 width=4) (actual time=0.021..0.022 rows=0 loops=6)
          Index Cond: (id = mmir.id_instrument)
          Filter: ((instrument)::text = 'vocal'::text)
          Rows Removed by Filter: 1
- Planning time: 2.046 ms
- Execution time: 0.673 ms
-(20 строк)
+ Planning time: 85.019 ms
+ Execution time: 0.550 ms
+(21 строка)
 
-Оптимизация:добавлен индекс по имени фамилии музыканта
-
-CREATE INDEX ON musicians(name_surname);
+Оптимизация:добавлен индекс по дате смерти музыканта
+CREATE INDEX ON musicians(data_death);
 EXPLAIN (ANALYZE) SELECT name_surname, cause_death, data_death FROM (countries AS c INNER JOIN (musical_instruments AS mi INNER JOIN (musicians AS m INNER JOIN musicians_musical_instruments_relation AS mmir ON (mmir.id_musician=m.id)) ON (mmir. id_instrument = mi.id)) ON (m.id_country = c.id)) WHERE (c.country = 'USA' AND mi.instrument = 'vocal' AND m.data_death>='1990-01-01');
 
 После оптимизации:
 
-                                                                        QUERY PLAN
------------------------------------------------------------------------------------------------------------------------------------------------------------
- Nested Loop  (cost=9.59..14.45 rows=1 width=516) (actual time=0.153..0.201 rows=2 loops=1)
-   ->  Hash Join  (cost=9.44..11.20 rows=3 width=520) (actual time=0.141..0.168 rows=6 loops=1)
+                                                                     QUERY PLAN                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=2.55..7.41 rows=1 width=516) (actual time=0.136..0.185 rows=2 loops=1)
+   ->  Hash Join  (cost=2.40..4.16 rows=3 width=520) (actual time=0.122..0.151 rows=6 loops=1)
          Hash Cond: (mmir.id_musician = m.id)
-         ->  Seq Scan on musicians_musical_instruments_relation mmir  (cost=0.00..1.53 rows=53 width=8) (actual time=0.031..0.037 rows=53 loops=1)
-         ->  Hash  (cost=9.43..9.43 rows=1 width=520) (actual time=0.083..0.083 rows=3 loops=1)
+         ->  Seq Scan on musicians_musical_instruments_relation mmir  (cost=0.00..1.53 rows=53 width=8) (actual time=0.028..0.033 rows=53 loops=1)
+         ->  Hash  (cost=2.39..2.39 rows=1 width=520) (actual time=0.070..0.070 rows=3 loops=1)
                Buckets: 1024  Batches: 1  Memory Usage: 9kB
-               ->  Nested Loop  (cost=0.15..9.43 rows=1 width=520) (actual time=0.049..0.062 rows=3 loops=1)
+               ->  Nested Loop  (cost=0.00..2.39 rows=1 width=520) (actual time=0.045..0.059 rows=3 loops=1)
                      Join Filter: (c.id = m.id_country)
                      Rows Removed by Join Filter: 8
-                     ->  Index Scan using countries_country_key on countries c  (cost=0.15..8.17 rows=1 width=4) (actual time=0.023..0.024 rows=1 loops=1)
-                           Index Cond: ((country)::text = 'USA'::text)
-                     ->  Seq Scan on musicians m  (cost=0.00..1.20 rows=5 width=524) (actual time=0.021..0.030 rows=11 loops=1)
+                     ->  Seq Scan on countries c  (cost=0.00..1.13 rows=1 width=4) (actual time=0.024..0.027 rows=1 loops=1)
+                           Filter: ((country)::text = 'USA'::text)
+                           Rows Removed by Filter: 9
+                     ->  Seq Scan on musicians m  (cost=0.00..1.20 rows=5 width=524) (actual time=0.017..0.024 rows=11 loops=1)
                            Filter: (data_death >= '1990-01-01'::date)
                            Rows Removed by Filter: 5
    ->  Index Scan using musical_instruments_pk on musical_instruments mi  (cost=0.15..1.07 rows=1 width=4) (actual time=0.004..0.004 rows=0 loops=6)
          Index Cond: (id = mmir.id_instrument)
          Filter: ((instrument)::text = 'vocal'::text)
          Rows Removed by Filter: 1
- Planning time: 2.140 ms
- Execution time: 0.332 ms
-(20 строк)
+ Planning time: 2.099 ms
+ Execution time: 0.363 ms
+(21 строка)
 
 Сложные запросы:
 1)Вывести всех участников музыкальной группы самого многочисленного жанра, которая была основана раньше других групп из этого жанра
